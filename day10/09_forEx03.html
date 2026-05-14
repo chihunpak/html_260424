@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>향상된 for</h1>
+    <h3>
+        for in / for of
+    </h3>
+    <!-- 
+        for(변수 : 리스트){   // java  => :을 하지않고, in or of를 사용
+            코드;
+        }
+        
+        - for in : object 객체안의 내용을 탐색할 때 사용 { key:value }
+            for(let key in object){
+                code;
+                object.key = value 가 리턴
+            }
+        
+        - for of : array 배열안의 내용을 탐색할 때 사용 [ ] 
+            for(let value of array){   // [1,2,3,4]
+                code;
+            }
+        -->
+
+        <button onclick="print()">출력</button>
+        <div id="list"></div>
+        
+        <script>
+            const people = ['kim','lee','park','hong'];
+            console.log(people);
+            for(let i=0; i<people.length; i++){
+                console.log(people[i]);
+            }
+
+            console.log("--for of--");
+            for(let p of people){
+                console.log(p);
+            }
+
+            const me = {
+                name:'hong',
+                age: 20,
+                email: '123@naver.com'
+            }
+            console.log("--for in--");
+            for(let key in me){
+                // me[keyName]
+                console.log(key+":"+me[key]);
+            }
+
+            console.log("----------");
+
+            const member = {
+                name: 'park',
+                age: 30,
+                favors : ['baseball','game','movie']
+            }
+
+            const musician = {
+            name:'IU',
+            age: 20,
+            address : 'seoul',
+            playList:{
+                first : '너랑나',
+                second:'좋은날',
+                third:'밤편지'
+            },
+            jukeBox: function(p1, p2, p3){
+                console.log(this.playList.first, this.playList.second, musician.playList.third);
+                console.log(p1, p2, p3);
+            }
+
+        }
+        function print(){
+            for(key in musician){
+                
+            }
+        }
+            
+        </script>
+</body>
+</html>
