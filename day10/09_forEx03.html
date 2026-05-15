@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        .key, ul{
+            width: 150px;
+            padding: 10px 10px;
+            border: 1px solid gray;
+            border-radius: 10px;
+            margin: 3px;
+        }
+        #result{
+            padding: 10px;
+        }
+        ul{
+            list-style: none;
+        }
+        ul>li{
+            padding-left: 30px;
+            margin: 5px;
+        }
+    </style>
 </head>
 <body>
     <h1>향상된 for</h1>
@@ -26,9 +45,8 @@
                 code;
             }
         -->
-
-        <button onclick="print()">출력</button>
-        <div id="list"></div>
+        <button id="btn">출력</button>
+        <div id="result"></div>
         
         <script>
             const people = ['kim','lee','park','hong'];
@@ -60,28 +78,44 @@
                 age: 30,
                 favors : ['baseball','game','movie']
             }
+            for(let key in member){
+                console.log(key+":"+member[key]);
+                if(key == 'favors'){
+                    for(let m of member[key]){
+                        console.log(m);
+                    }
+                }
+            }
 
+            console.log("---------");
             const musician = {
-            name:'IU',
-            age: 20,
-            address : 'seoul',
-            playList:{
-                first : '너랑나',
-                second:'좋은날',
-                third:'밤편지'
-            },
-            jukeBox: function(p1, p2, p3){
-                console.log(this.playList.first, this.playList.second, musician.playList.third);
-                console.log(p1, p2, p3);
+                name: "IU",
+                age : 20,
+                addr : 'seoul',
+                playList : ['너랑나','좋은날','밤편지']
+            }
+            document.getElementById('btn').addEventListener('click',clickEvent);
+
+            function clickEvent(){
+                const result = document.getElementById('result');
+                let str = '<div>';
+                    for(let key in musician){
+                        if(key == 'playList'){
+                            str += `<ul>`;
+                            str += `playList : `;
+                                for(let k of musician[key]){
+                                    str+=`<li>${k}</li>`;
+                                }
+                            str += `</ul>`;
+                        }else{
+                            str+=`<div class="key">${key} : ${musician[key]}</div>`;
+                        }
+                    }
+                    str += '</div>';
+                result.innerHTML = str;
             }
 
-        }
-        function print(){
-            for(key in musician){
-                
-            }
-        }
-            
+
         </script>
 </body>
 </html>

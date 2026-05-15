@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Set을 활용한 로또 만들기</title>
+    <style>
+        /* 기본 스타일 리셋 및 배경 설정 */
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* 메인 컨테이너 (fieldset 대체 스타일) */
+        fieldset {
+            border: none;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* 메인 타이틀 */
+        h1:first-of-type {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+
+        /* 버튼 스타일 */
+        button {
+            background: linear-gradient(135deg, #4a6fa5, #3b5998);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            margin-top: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #5b7fb5, #4b69a8);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* 당첨 확인 버튼은 색상을 다르게 강조 */
+        #ranking {
+            background: linear-gradient(135deg, #ff6b6b, #ee5253);
+            margin-top: 25px;
+        }
+        #ranking:hover {
+            background: linear-gradient(135deg, #ff7979, #ff5252);
+        }
+
+        /* 번호가 출력되는 공간 */
+        h1[id^="printNum"] {
+            font-size: 16px;
+            color: #666;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 10px 0 25px 0;
+            min-height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            border: 1px dashed #ddd;
+        }
+
+        /* 로또 번호 공(Ball) 스타일 */
+        .ball {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+        }
+
+        /* 로또 공식 색상 기준 번호별 분기 */
+        .ball-yellow { background-color: #fbc02d; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
+        .ball-blue   { background-color: #1976d2; }
+        .ball-red    { background-color: #e53935; }
+        .ball-gray   { background-color: #757575; }
+        .ball-green  { background-color: #43a047; }
+        
+        /* 보너스 공 앞에 붙는 '+' 기호 스타일 */
+        .bonus-plus {
+            font-size: 20px;
+            font-weight: bold;
+            color: #aaa;
+            margin: 0 5px;
+        }
+
+        /* 결과 출력 스타일 */
+        #printResult {
+            font-size: 22px;
+            margin-top: 15px;
+            padding: 10px;
+            font-weight: 700;
+        }
+        
+        /* 등수별 텍스트 색상 하이라이트 */
+        .win-text { color: #e53935; font-size: 28px; }
+        .lose-text { color: #757575; }
+    </style>
+</head>
+<body>
+    <fieldset>
+        <h1>🎰 SET 로또 추첨기</h1>
+        
+        <button id="makeRandom">내 번호 6자리 생성</button>
+        <h1 id="printNum">번호 생성 버튼을 눌러주세요</h1>
+
+        <button id="makeRandom2">당첨 번호 7자리 추첨</button>
+        <h1 id="printNum2">추첨 버튼을 눌러주세요</h1>
+
+        <button id="ranking">결과 확인하기</button>
+        <h3 id="printResult">결과가 여기에 표시됩니다</h3>
+    </fieldset>
+
+    <script>
+        document.getElementById('makeRandom').addEventListener('click', makeRandom);
+        document.getElementById('makeRandom2').addEventListener('click', makeRandom2);
+        document.getElementById('ranking').addEventListener('click', printResult);
+
+        let userNums = [];
+        let winNums = [];
+
+        // 로또 번호 숫자에 따라 공 색상 클래스를 반환하는 함수
+        function getBallClass(num) {
+            if (num <= 10) return 'ball-yellow';
+            if (num <= 20) return 'ball-blue';
+            if (num <= 30) return 'ball-red';
+            if (num <= 40) return 'ball-gray';
+            return 'ball-green';
+        }
+
+        // 숫자가 들어간 동그란 공 HTML 태그를 만드는 함수
+        function createBallHTML(num) {
+            return `<span class="ball ${getBallClass(num)}">${num}</span>`;
+        }
+
+        function makeRandom(){
+            const set = new Set();
+            while(set.size < 6){
+                let num = Math.floor(Math.random()*45)+1;
+                set.add(num);
+            }
+            // 오름차순 정렬 추가
+            userNums = [...set].sort((a, b) => a - b);
+            
+            // 번호를 공 모양으로 변환하여 출력
+            document.getElementById('printNum').innerHTML = userNums.map(createBallHTML).join('');
+        }
+
+        function makeRandom2(){
+            const set = new Set();
+            while(set.size < 7){
+                let num = Math.floor(Math.random()*45)+1;
+                set.add(num);
+            }
+            // 앞 6개는 정렬하고 마지막 보너스 번호는 뒤에 그대로 배치
+            const temp = [...set];
+            const mainWin = temp.slice(0, 6).sort((a, b) => a - b);
+            const bonus = temp[6];
+            winNums = [...mainWin, bonus];
+            
+            // 본번호 6개 공으로 만들고, 보너스 번호 앞에 '+' 기호 추가
+            let ballsHTML = winNums.slice(0, 6).map(createBallHTML).join('');
+            ballsHTML += `<span class="bonus-plus">+</span>` + createBallHTML(bonus);
+
+            document.getElementById('printNum2').innerHTML = ballsHTML;
+        }
+
+        function printResult(){
+            if(userNums.length === 0 || winNums.length === 0){
+                document.getElementById('printResult').innerHTML = '<span style="color:#ff6b6b; font-size:15px;">번호를 먼저 생성하세요!</span>';
+                return;
+            }
+            let bonusNum = winNums[6];
+            let winMainNums = winNums.slice(0, 6);
+            let matchCount = 0;
+            let bonusMatch = false;
+            
+            for(let num of userNums){
+                if(winMainNums.includes(num)){
+                    matchCount++;
+                }
+                if(num === bonusNum){
+                    bonusMatch = true;
+                }
+            }
+            
+            let result = '';
+            let isWin = true;
+
+            if(matchCount === 6){
+                result = '🎉 1등 당첨! 🎉';
+            }else if(matchCount === 5 && bonusMatch){
+                result = '🥈 2등 당첨! 🥈';
+            }else if(matchCount === 5){
+                result = '🥉 3등 당첨! 🥉';
+            }else if(matchCount === 4){
+                result = '4등 당첨 (5만원)';
+            }else if(matchCount === 3){
+                result = '5등 당첨 (5천원)';
+            }else{
+                result = '아쉽지만 꽝입니다 😢';
+                isWin = false;
+            }
+            
+            const resultElement = document.getElementById('printResult');
+            resultElement.innerHTML = result;
+            
+            // 등수에 따른 텍스트 스타일 지정
+            if(isWin && matchCount >= 4) {
+                resultElement.className = 'win-text';
+            } else {
+                resultElement.className = 'lose-text';
+            }
+        }
+    </script>
+</body>
+</html>
