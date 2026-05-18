@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+body {
+    background-color: #0b0f19; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
+}
+
+.container {
+    width: 270px;
+    background: #111625;
+    padding: 25px;
+    border-radius: 20px;
+
+    border: 6px double #00d4ff; 
+    
+   
+    box-shadow: 
+        0 10px 40px rgba(0, 0, 0, 0.6),       
+        0 0 15px rgba(0, 212, 255, 0.6),     
+        inset 0 0 15px rgba(0, 212, 255, 0.4); 
+}
+
+#printResult {
+    height: 70px;
+    line-height: 70px;
+    border: 2px solid #ff7b00;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 34px;
+    font-weight: 800; 
+    padding: 0 15px;
+    text-align: right;
+    
+    background: #ff7b00; 
+    color: rgba(26, 15, 7, 0.7); 
+    text-shadow: none; 
+    
+    box-shadow: 
+        0 0 10px #ff7b00,                     
+        0 0 25px rgba(255, 123, 0, 0.6);           
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    
+}
+
+.area {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+button {
+    height: 55px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 2px solid #00d4ff;
+    border-radius: 12px;
+    background: rgba(0, 212, 255, 0.03);
+    color: #00d4ff;
+    text-shadow: 0 0 6px rgba(0, 212, 255, 0.6);
+    transition: all 0.2s ease;
+}
+
+button:hover {
+    background: rgba(0, 212, 255, 0.15);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    text-shadow: 0 0 8px #00d4ff;
+}
+
+button:active {
+    background: #00d4ff;
+    color: #070a12;
+    text-shadow: none;
+    box-shadow: 0 0 25px #00d4ff;
+    transform: scale(0.96);
+}
+
+button[value="+"], 
+button[value="-"], 
+button[value="*"], 
+button[value="/"], 
+button[value="="] {
+    border-color: #ff7b00;
+    background: rgba(255, 123, 0, 0.03);
+    color: #ff7b00;
+    text-shadow: 0 0 6px rgba(255, 123, 0, 0.6);
+}
+
+button[value="+"]:hover, 
+button[value="-"]:hover, 
+button[value="*"]:hover, 
+button[value="/"]:hover, 
+button[value="="]:hover {
+    background: rgba(255, 123, 0, 0.15);
+    box-shadow: 0 0 15px rgba(255, 123, 0, 0.5);
+    text-shadow: 0 0 8px #ff7b00;
+}
+
+button[value="+"]:active, 
+button[value="-"]:active, 
+button[value="*"]:active, 
+button[value="/"]:active, 
+button[value="="]:active {
+    background: #ff7b00;
+    color: #070a12;
+    text-shadow: none;
+    box-shadow: 0 0 25px #ff7b00;
+}
+
+.c {
+    grid-column: span 4;
+    border-color: #ff3c00; 
+    background: rgba(255, 60, 0, 0.03);
+    color: #ff3c00;
+    text-shadow: 0 0 6px rgba(255, 60, 0, 0.6);
+    margin-top: 5px;
+}
+
+.c:hover {
+    background: rgba(255, 60, 0, 0.15);
+}
+
+.c:active {
+    background: #ff3c00;
+    color: #070a12;
+    text-shadow: none;
+    box-shadow: 0 0 25px #ff3c00;
+}
+
+#printResult.blue-mode {
+    background: #00d4ff;       
+    border-color: #00d4ff;        
+    color: rgba(26, 15, 7, 0.7);  
+    
+    box-shadow: 
+        0 0 10px #00d4ff,                     
+        0 0 25px rgba(0, 212, 255, 0.6);
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="printResult">0</h1>
+        <div class="area">
+            <button type="button" value="7">7</button>
+            <button type="button" value="8">8</button>
+            <button type="button" value="9">9</button>
+            <button type="button" value="+">+</button>
+
+            <button type="button" value="4">4</button>
+            <button type="button" value="5">5</button>
+            <button type="button" value="6">6</button>
+            <button type="button" value="-">-</button>
+
+            <button type="button" value="1">1</button>
+            <button type="button" value="2">2</button>
+            <button type="button" value="3">3</button>
+            <button type="button" value="*">*</button>
+
+            <button type="button" value=".">.</button>
+            <button type="button" value="0">0</button>
+            <button type="button" value="=">=</button>
+            <button type="button" value="/">/</button>
+
+            <button type="button" value="c" class="c">C</button>
+        </div>
+    </div>
+
+    <script>
+        const printResult = document.getElementById("printResult");
+const buttons = document.querySelector(".area");
+
+let current = "";
+let expression = [];
+let lastType = "";
+
+/* -------------------------
+   EVENT HANDLER
+------------------------- */
+buttons.addEventListener("click", (e) => {
+    const btn = e.target;
+    if (btn.tagName !== "BUTTON") return;
+
+    const value = btn.value;
+
+    if (value === "c") {
+        reset();
+        return;
+    }
+
+    if (value === "=") {
+        calculateResult();
+        return;
+    }
+
+    if (isOperator(value)) {
+        handleOperator(value);
+        return;
+    }
+
+    handleNumber(value);
+});
+
+/* -------------------------
+   NUMBER INPUT
+------------------------- */
+function handleNumber(value) {
+    current += value;
+    lastType = "number";
+    renderDisplay();
+}
+
+/* -------------------------
+   OPERATOR INPUT
+   핵심: 0 상태에서는 화면 변화 없음
+------------------------- */
+function handleOperator(value) {
+
+    // 초기 상태에서 연산자만 눌렀을 때 내부적으로 0 처리
+    if (current === "" && expression.length === 0) {
+        expression.push("0");
+    }
+
+    if (lastType === "operator") {
+        expression[expression.length - 1] = value;
+    } else {
+        if (current !== "") {
+            expression.push(current);
+        }
+        expression.push(value);
+    }
+
+    current = "";
+    lastType = "operator";
+
+    renderDisplay();
+}
+
+/* -------------------------
+   DISPLAY RENDER
+   핵심: "0" 단독 상태에서는 expression을 무시
+------------------------- */
+function renderDisplay() {
+
+    // 초기 상태 (아무 입력도 없고 0만 있는 상태)
+    const isInitialZeroState =
+        expression.length === 0 &&
+        current === "";
+
+    // 화면에 0만 유지
+    if (isInitialZeroState) {
+        printResult.innerText = "0";
+        return;
+    }
+
+    // 내부에 0 + operator가 있어도 화면은 0 유지
+    const isOnlyZeroExpression =
+        expression.length === 1 &&
+        expression[0] === "0" &&
+        current === "" &&
+        lastType === "operator";
+
+    if (isOnlyZeroExpression) {
+        printResult.innerText = "0";
+        return;
+    }
+
+    let display = expression.join(" ");
+
+    if (current !== "") {
+        display += (display ? " " : "") + current;
+    }
+
+    printResult.innerText = display || "0";
+}
+
+/* -------------------------
+   CALCULATION
+------------------------- */
+function calculateResult() {
+    if (current !== "") {
+        expression.push(current);
+    }
+
+    while (isOperator(expression.at(-1))) {
+        expression.pop();
+    }
+
+    const result = calculate(expression);
+
+    if (!isFinite(result)) {
+        printResult.innerText = "Error";
+        current = "";
+        expression = [];
+        lastType = "";
+        return;
+    }
+
+    printResult.innerText = result;
+
+    current = result.toString();
+    expression = [];
+    lastType = "number";
+}
+
+/* -------------------------
+   CALCULATE ENGINE
+------------------------- */
+function calculate(arr) {
+    let tokens = [...arr];
+
+    for (let i = 0; i < tokens.length; i++) {
+        if (tokens[i] === "*" || tokens[i] === "/") {
+            const a = parseFloat(tokens[i - 1]);
+            const b = parseFloat(tokens[i + 1]);
+
+            const result = tokens[i] === "*" ? a * b : a / b;
+
+            tokens.splice(i - 1, 3, result.toString());
+            i--;
+        }
+    }
+
+    let result = parseFloat(tokens[0]);
+
+    for (let i = 1; i < tokens.length; i += 2) {
+        const op = tokens[i];
+        const num = parseFloat(tokens[i + 1]);
+
+        if (op === "+") result += num;
+        if (op === "-") result -= num;
+    }
+
+    return result;
+}
+
+/* -------------------------
+   UTIL
+------------------------- */
+function isOperator(v) {
+    return ["+", "-", "*", "/"].includes(v);
+}
+
+function reset() {
+    current = "";
+    expression = [];
+    lastType = "";
+    printResult.innerText = "0";
+}
+
+/* -------------------------
+   UI EFFECT
+------------------------- */
+const cButton = document.querySelector('.c');
+
+cButton.addEventListener('mousedown', () => {
+    printResult.classList.add('blue-mode');
+});
+
+cButton.addEventListener('touchstart', () => {
+    printResult.classList.add('blue-mode');
+});
+
+const removeBlueMode = () => {
+    printResult.classList.remove('blue-mode');
+};
+
+window.addEventListener('mouseup', removeBlueMode);
+window.addEventListener('touchend', removeBlueMode);
+    </script>
+</body>
+</html>

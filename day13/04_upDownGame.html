@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- 
+        1~99 까지 숫자 중 하나를 랜덤으로 선택하여 해당 숫자를 맞추는 게임
+    -->
+    <div>
+        <button id="random">랜덤 숫자 생성 버튼</button>
+        <button id="reset">다시시도</button>
+        <h1 id="printMsg"></h1>
+    </div>
+    <div>
+        <input type="text" id="myNum">
+        <button id="compareNum">제출</button>
+        <h1 id="resul"></h1>
+    </div>
+    <script>
+        let count = 0; 
+        let ranNum = null;
+
+       
+        const printMsg = document.getElementById('printMsg');
+        const resul = document.getElementById('resul');
+        const myNumInput = document.getElementById('myNum');
+
+        
+        document.getElementById('random').addEventListener('click', () => {
+            
+            ranNum = Math.floor(Math.random() * 100) + 1;
+            count = 0; 
+            
+            printMsg.textContent = "게임 시작! 숫자가 생성되었습니다.";
+            resul.textContent = "";
+            myNumInput.value = "";
+            console.log("정답 힌트:", ranNum); 
+        });
+
+        
+        document.getElementById('compareNum').addEventListener('click', () => {
+
+            if (ranNum === null) {
+                alert('먼저 랜덤 숫자 생성 버튼을 눌러주세요!');
+                return;
+            }
+
+            const userNum = Number(myNumInput.value);
+
+            if (!userNum || userNum < 1 || userNum > 100) {
+                alert('1부터 99 사이의 올바른 숫자를 입력해주세요.');
+                return;
+            }
+
+            count++; 
+
+            if (ranNum === userNum) {
+                resul.textContent = `정답입니다! 🎉 (${count}회째 시도에 맞혔습니다.)`;
+            } else if (ranNum > userNum) {
+                resul.textContent += `${userNum}보다 큽니다! (시도 횟수: ${count}회)\n`;
+            } else {
+                resul.textContent += `${userNum}보다 작습니다! (시도 횟수: ${count}회)\n`;
+            }
+        });
+
+     
+        document.getElementById('reset').addEventListener('click', () => {
+            count = 0;
+            ranNum = null;
+            printMsg.textContent = "게임이 초기화되었습니다. 숫자를 다시 생성해주세요.";
+            resul.textContent = "";
+            myNumInput.value = "";
+        });
+    </script>
+</body>
+</html>
